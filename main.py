@@ -1,32 +1,48 @@
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import sympy
 
-f = sympy.sympify(input())
-g = sympy.sympify(input())
-guess = (2, 1)
+def calculate_points(delta_x, delta_y, x0, y0, depth) -> list:
+    points_x = []
+    points_y = []
 
-f_line_x = sympy.diff(f, "x")
-f_line_y = sympy.diff(f, "y")
+    try:
+        for _ in range(depth):
+            x0 = x0 + delta_x.subs({'x': x0, 'y': y0})
+            y0 = y0 + delta_y.subs({'x': x0, 'y': y0})
+            points_x.append(x0)
+            points_y.append(x0)
 
-g_line_x = sympy.diff(g, "x")
-g_line_y = sympy.diff(g, "y")
+    except:
+        print("Um erro ocorreu na execução do seu programa.")
+        print("Verifique se o seu sistema possui solução.")
+        exit(1)
 
-matrix = sympy.Matrix([[f_line_x, f_line_y], [g_line_x, g_line_y]])
-matrix = matrix**-1
-images = sympy.Matrix([f, g])
+    return points_x, points_y
 
-delta_x, delta_y = matrix * -images
+def main():
 
-print(matrix)
-print(delta_x)
-print(delta_y)
+    f = sympy.sympify(input("f(x, y) = "))
+    g = sympy.sympify(input("g(x, y) = "))
+    x0, y0 = tuple(map(float, input("Initial guess in a,b format: ").strip().split(",")))
 
-x0 = guess[0]
-y0 = guess[1]
+    f_line_x = sympy.diff(f, "x")
+    f_line_y = sympy.diff(f, "y")
 
-max_layers = 10
-for i in range(max_layers):
-    x0 = x0 + delta_x.subs([("x", x0), ("y", y0)])
-    y0 = y0 + delta_y.subs([("x", x0), ("y", y0)])
+    g_line_x = sympy.diff(g, "x")
+    g_line_y = sympy.diff(g, "y")
 
-    print(x0, y0)
+    matrix = sympy.Matrix([[f_line_x, f_line_y], [g_line_x, g_line_y]])
+    images = sympy.Matrix([f, g])
+
+    delta_x, delta_y = matrix.inv() * (-images)
+
+    depth = int(input("Depth: "))
+
+    plot_points_x, plot_points_y = calculate_points(delta_x, delta_y, x0, y0, depth)
+        
+    plt.plot()
+    plt.scatter(plot_points_x, plot_points_y)
+    plt.show()
+
+if __name__ == "__main__":
+    main()
